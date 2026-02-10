@@ -5,14 +5,14 @@ class OpenMusicService {
         this.pool = new Pool();
     }
 
-    async getSongInPlaylist(id) {
+    async getSongInPlaylist(albumId) {
         const result = await this.pool.query(
-            `SELECT p.id, name, s.id as song_id, title, performer, username 
+            `SELECT p.id, name, s.id as song_id, title, performer 
             FROM playlists as p
             JOIN playlist_songs ON playlist = p.id
             JOIN songs as s ON "songId" = s.id
             JOIN users ON users.id = owner
-            WHERE p.id = $1`, [id]
+            WHERE p.id = $1`, [albumId]
         );
 
         const songs = result.rows.map((res) => ({
@@ -21,15 +21,14 @@ class OpenMusicService {
             performer: res.performer
         }));
 
-        const { playlistId, name, username } = result.rows[0];
+        const { id, name } = result.rows[0];
         const playlist = {
-            id: playlistId,
+            id,
             name,
-            username,
             songs
         };
-
-        return playlist;
+        
+        return { playlist };
     }
 }
 
